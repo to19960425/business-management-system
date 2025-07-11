@@ -38,12 +38,16 @@ fi
 # Test 3: Check port configurations
 echo ""
 echo "🔍 Testing port configurations..."
+# Load environment variables for port checking
+DB_EXTERNAL_PORT=${DB_EXTERNAL_PORT:-3307}
+PHPMYADMIN_PORT=${PHPMYADMIN_PORT:-8081}
+
 expected_ports=(
-    "db:3306"
+    "db:${DB_EXTERNAL_PORT}"
     "backend:8000"
     "frontend:3000"
     "nginx:80"
-    "phpmyadmin:8080"
+    "phpmyadmin:${PHPMYADMIN_PORT}"
     "mailhog:1025"
     "mailhog:8025"
     "redis:6379"
@@ -53,7 +57,7 @@ for port_config in "${expected_ports[@]}"; do
     service=$(echo "$port_config" | cut -d: -f1)
     port=$(echo "$port_config" | cut -d: -f2)
     
-    if docker compose config | grep -A 30 "^  ${service}:" | grep -q "published.*\"${port}\""; then
+    if PHPMYADMIN_PORT=${PHPMYADMIN_PORT} DB_EXTERNAL_PORT=${DB_EXTERNAL_PORT} docker compose config | grep -A 30 "^  ${service}:" | grep -q "published.*\"${port}\""; then
         echo "✅ Service '${service}' has correct port mapping (${port})"
     else
         echo "❌ Service '${service}' port mapping (${port}) is incorrect"
