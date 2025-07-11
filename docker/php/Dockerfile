@@ -39,7 +39,8 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files (will be handled via volume mount in docker-compose)
+# Copy application files (if backend directory exists)
+# This will be handled by volume mount in docker-compose
 # COPY backend/ .
 
 # Set permissions

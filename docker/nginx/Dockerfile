@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     nginx-mod-http-headers-more \
     nginx-mod-http-geoip \
     nginx-mod-http-realip \
+    curl \
     ca-certificates \
     tzdata
 
