@@ -17,14 +17,14 @@ WORKDIR /app
 USER node
 
 # Copy package files (copy to a temporary location first to avoid permission issues)
-COPY --chown=node:node package*.json ./
+COPY --chown=node:node frontend/package*.json ./
 
 # Install dependencies
 # Using npm ci for faster, reliable, reproducible builds
-RUN npm ci --include=dev --silent
+RUN npm install --include=dev
 
 # Copy application files
-COPY --chown=node:node . .
+COPY --chown=node:node frontend/ .
 
 # Create necessary directories
 RUN mkdir -p node_modules/.cache && \

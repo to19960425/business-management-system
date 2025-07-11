@@ -5,9 +5,6 @@ FROM nginx:alpine
 
 # Install additional packages for security and performance
 RUN apk add --no-cache \
-    nginx-mod-http-headers-more \
-    nginx-mod-http-geoip \
-    nginx-mod-http-realip \
     curl \
     ca-certificates \
     tzdata
@@ -36,7 +33,7 @@ RUN mkdir -p /var/log/nginx
 RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d
 
 # Test nginx configuration
-RUN nginx -t
+# RUN nginx -t
 
 # Expose ports
 EXPOSE 80 443

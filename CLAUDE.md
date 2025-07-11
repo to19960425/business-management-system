@@ -26,7 +26,7 @@ docker-compose exec frontend sh
 ### Service Access
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- phpMyAdmin: http://localhost:8080
+- phpMyAdmin: http://localhost:8081
 - Mailhog: http://localhost:8025
 - Nginx: http://localhost:80
 
