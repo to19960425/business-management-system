@@ -1,28 +1,41 @@
 FROM node:18-alpine
 
-# Install system dependencies
+# Install system dependencies for development
 RUN apk add --no-cache \
     git \
     curl \
-    bash
+    bash \
+    dumb-init
+
+# Create app directory
+RUN mkdir -p /app && chown -R node:node /app
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY frontend/package*.json ./
+# Switch to non-root user
+USER node
+
+# Copy package files (copy to a temporary location first to avoid permission issues)
+COPY --chown=node:node package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production=false
+# Using npm ci for faster, reliable, reproducible builds
+RUN npm ci --include=dev --silent
 
 # Copy application files
-COPY frontend/ .
+COPY --chown=node:node . .
 
-# Build the application
-RUN npm run build
+# Create necessary directories
+RUN mkdir -p node_modules/.cache && \
+    mkdir -p build && \
+    mkdir -p .vite
 
 # Expose port
 EXPOSE 3000
 
-# Development command
-CMD ["npm", "run", "dev"]
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Development command with hot reload
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
