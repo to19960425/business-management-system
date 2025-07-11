@@ -41,6 +41,7 @@ WORKDIR /var/www/html
 
 # Copy application files (if backend directory exists)
 # This will be handled by volume mount in docker-compose
+# COPY backend/ .
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
