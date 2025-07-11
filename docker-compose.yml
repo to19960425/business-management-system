@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # Database
+  db:
+    image: mysql:8.0
+    container_name: bms_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-business_management}
+      MYSQL_USER: ${DB_USERNAME:-bmuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-bmpass}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/conf:/etc/mysql/conf.d
+    ports:
+      - "3306:3306"
+    networks:
+      - business-management-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Backend (CakePHP)
+  backend:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: bms_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-business_management}
+      DB_USERNAME: ${DB_USERNAME:-bmuser}
+      DB_PASSWORD: ${DB_PASSWORD:-bmpass}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-here}
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "8000:80"
+    networks:
+      - business-management-network
+    working_dir: /var/www/html
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: bms_frontend
+    environment:
+      REACT_APP_API_URL: ${BACKEND_URL:-http://localhost:8000}
+      REACT_APP_API_PREFIX: ${API_PREFIX:-/api/v1}
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - business-management-network
+    working_dir: /app
+    stdin_open: true
+    tty: true
+
+  # Nginx (Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    container_name: bms_nginx
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - business-management-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: bms_phpmyadmin
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-bmuser}
+      PMA_PASSWORD: ${DB_PASSWORD:-bmpass}
+    ports:
+      - "8080:80"
+    networks:
+      - business-management-network
+
+  # Mailhog (Email testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: bms_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - business-management-network
+
+  # Redis (optional - for caching)
+  redis:
+    image: redis:7-alpine
+    container_name: bms_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - business-management-network
+
+volumes:
+  db_data:
+  redis_data:
+  node_modules:
+
+networks:
+  business-management-network:
+    driver: bridge
