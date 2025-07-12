@@ -374,6 +374,24 @@ return [
             'url' => env('LOG_QUERIES_URL', null),
             'scopes' => ['cake.database.queries'],
         ],
+        // API-specific logging for requests, authentication, and errors
+        'api' => [
+            'className' => FileLog::class,
+            'path' => LOGS,
+            'file' => 'api',
+            'url' => env('LOG_API_URL', null),
+            'scopes' => ['api'],
+            'levels' => ['notice', 'info', 'debug', 'warning', 'error'],
+        ],
+        // Authentication and security logging
+        'auth' => [
+            'className' => FileLog::class,
+            'path' => LOGS,
+            'file' => 'auth',
+            'url' => env('LOG_AUTH_URL', null),
+            'scopes' => ['auth'],
+            'levels' => ['notice', 'info', 'warning', 'error', 'critical'],
+        ],
     ],
 
     /*
