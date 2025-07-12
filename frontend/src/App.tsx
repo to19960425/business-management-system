@@ -1,55 +1,57 @@
-import { useState } from 'react'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import { Container, Typography, Box, Card, CardContent, Button } from '@mui/material'
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-})
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { theme } from './styles/theme';
+import { MainLayout } from './components/common/MainLayout';
+import { Dashboard } from './pages/Dashboard';
+import { StaffList } from './pages/StaffList';
+import { ClientList } from './pages/ClientList';
+import { ProjectList } from './pages/ProjectList';
+import { ROUTES } from './constants/routes';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="lg">
-        <Box sx={{ my: 4 }}>
-          <Typography variant="h2" component="h1" gutterBottom>
-            Business Management System
-          </Typography>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" component="h2">
-                Frontend Service Running
-              </Typography>
-              <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                React + TypeScript + Vite + Material-UI
-              </Typography>
-              <Typography variant="body2">
-                Docker Compose health check: Frontend container is running successfully.
-              </Typography>
-              <Box sx={{ mt: 2 }}>
-                <Button 
-                  variant="contained" 
-                  onClick={() => setCount((count) => count + 1)}
-                >
-                  Count is {count}
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Container>
+      <Router>
+        <Routes>
+          <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
+          <Route
+            path={ROUTES.STAFF.LIST}
+            element={
+              <MainLayout>
+                <StaffList />
+              </MainLayout>
+            }
+          />
+          <Route
+            path={ROUTES.CLIENTS.LIST}
+            element={
+              <MainLayout>
+                <ClientList />
+              </MainLayout>
+            }
+          />
+          <Route
+            path={ROUTES.PROJECTS.LIST}
+            element={
+              <MainLayout>
+                <ProjectList />
+              </MainLayout>
+            }
+          />
+        </Routes>
+      </Router>
     </ThemeProvider>
-  )
+  );
 }
 
 export default App
