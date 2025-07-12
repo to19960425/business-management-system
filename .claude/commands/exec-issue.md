@@ -8,6 +8,7 @@ gh issue view $ARGUMENTS でGitHubのIssueの内容を確認し、タスクの�
 6. テストとLintを実行し、すべてのテストが通ることを確認する
 7. コミットを適切な粒度で作成する
 8. 以下のルールに従ってPRを作成する
+    - 使用言語は日本語。
     - PRのdescriptionのテンプレートは @.github/PULL_REQUEST_TEMPLATE.md を参照し、それに従うこと
     - PRのdescriptionのテンプレート内でコメントアウトされている箇所は必ず削除すること
     - PRのdescriptionには`Closes #$ARGUMENTS`と記載すること
