@@ -29,8 +29,10 @@ class ApiCsrfProtectionMiddleware implements MiddlewareInterface
         $this->csrfMiddleware = new CsrfProtectionMiddleware([
             'httponly' => true,
             'secure' => true,
-            'skipCheckCallback' => [$this, 'shouldSkipCsrfCheck'],
         ]);
+
+        // Set the skip check callback using the proper method
+        $this->csrfMiddleware->skipCheckCallback([$this, 'shouldSkipCsrfCheck']);
     }
 
     /**

@@ -16,8 +16,10 @@ declare(strict_types=1);
  */
 namespace App;
 
+use App\Middleware\ApiCsrfProtectionMiddleware;
 use App\Middleware\CorsMiddleware;
 use App\Middleware\JwtAuthenticationMiddleware;
+use App\Service\SecurityValidationService;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
@@ -49,12 +51,11 @@ class Application extends BaseApplication
         // Call parent to load bootstrap from files.
         parent::bootstrap();
 
-        // Validate security configuration (temporarily disabled for debugging)
-        // TODO: Re-enable after resolving environment variable loading issues
-        // if (PHP_SAPI !== 'cli' && !defined('PHPUNIT_COMPOSER_INSTALL')) {
-        //     $securityValidator = new SecurityValidationService();
-        //     $securityValidator->validateConfiguration();
-        // }
+        // Validate security configuration
+        if (PHP_SAPI !== 'cli' && !defined('PHPUNIT_COMPOSER_INSTALL')) {
+            $securityValidator = new SecurityValidationService();
+            $securityValidator->validateConfiguration();
+        }
 
         if (PHP_SAPI !== 'cli') {
             FactoryLocator::add(
@@ -97,9 +98,8 @@ class Application extends BaseApplication
             ->add(new BodyParserMiddleware())
 
             // Cross Site Request Forgery (CSRF) Protection Middleware
-            // Temporarily disabled for API development - TODO: Enable with proper configuration
             // https://book.cakephp.org/5/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
-            // ->add(new ApiCsrfProtectionMiddleware())
+            ->add(new ApiCsrfProtectionMiddleware())
 
             // Add JWT authentication middleware
             ->add(new JwtAuthenticationMiddleware());
