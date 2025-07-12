@@ -63,9 +63,8 @@ class ApiController extends AppController
     protected function apiError(
         string $message = 'An error occurred',
         int $statusCode = 500,
-        mixed $errors = null
-    ): Response
-    {
+        mixed $errors = null,
+    ): Response {
         $response = [
             'success' => false,
             'data' => null,
