@@ -26,9 +26,10 @@ docker compose exec frontend sh
 ### Service Access
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- phpMyAdmin: http://localhost:8081
+- phpMyAdmin: http://localhost:8081 (configurable via PHPMYADMIN_PORT)
 - Mailhog: http://localhost:8025
 - Nginx: http://localhost:80
+- Redis: localhost:6379 (for caching)
 
 ### Database Operations
 ```bash
@@ -71,7 +72,7 @@ docker compose exec backend composer install
 # Run backend tests (full integration tests)
 docker compose exec backend composer test
 
-# Run unit tests only (faster, no database required)
+# Run unit tests only (faster, no database required - covers Middleware & API Controllers)
 docker compose exec backend vendor/bin/phpunit -c phpunit-unit.xml
 
 # Run code style checks
@@ -169,9 +170,14 @@ This project has completed Phase 1 (Infrastructure Setup) including API foundati
 
 ### Environment Variables
 Copy `.env.example` to `.env` and configure:
-- Database credentials
-- JWT secret
-- Application debug settings
+- Database credentials (DB_HOST, DB_USERNAME, DB_PASSWORD)
+- JWT secrets (JWT_SECRET, SECURITY_SALT, ENCRYPTION_KEY)
+- Application settings (APP_DEBUG, APP_ENV, APP_TIMEZONE)
+- API configuration (API_PREFIX, API_RATE_LIMIT)
+- Email settings (MAIL_HOST, MAIL_FROM_ADDRESS)
+- CORS origins (CORS_ALLOWED_ORIGINS)
+
+**Important**: Generate secure random strings for production using `openssl rand -base64 32`
 
 ### Security Considerations
 - JWT tokens for authentication

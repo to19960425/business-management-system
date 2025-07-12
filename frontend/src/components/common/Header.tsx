@@ -15,6 +15,7 @@ import {
   Settings,
   Logout,
 } from '@mui/icons-material';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -22,6 +23,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -33,9 +35,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    window.location.href = '/login';
+    handleMenuClose();
+    logout();
   };
 
   return (
@@ -56,6 +57,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {user && (
+            <Typography variant="body2" sx={{ mr: 2 }}>
+              {user.username}
+            </Typography>
+          )}
           <IconButton
             size="large"
             edge="end"

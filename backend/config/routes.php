@@ -88,7 +88,7 @@ return function (RouteBuilder $routes): void {
     /*
      * API Routes
      */
-    $routes->prefix('Api', function (RouteBuilder $builder): void {
+    $routes->prefix('api', function (RouteBuilder $builder): void {
         // Set JSON extension for API routes
         $builder->setExtensions(['json']);
         
@@ -102,6 +102,9 @@ return function (RouteBuilder $routes): void {
             $builder->connect('/auth/login', ['controller' => 'Auth', 'action' => 'login']);
             $builder->connect('/auth/logout', ['controller' => 'Auth', 'action' => 'logout']);
             $builder->connect('/auth/refresh', ['controller' => 'Auth', 'action' => 'refresh']);
+            
+            // Test endpoints
+            $builder->connect('/test/protected', ['controller' => 'Test', 'action' => 'protected']);
             
             // Future API endpoints will be added here
             // $builder->connect('/staff', ['controller' => 'Staff', 'action' => 'index']);

@@ -29,6 +29,16 @@ return [
     ],
 
     /*
+     * JWT Authentication configuration
+     */
+    'JWT' => [
+        'secret' => env('JWT_SECRET', 'your-super-secret-jwt-key-here'),
+        'algorithm' => env('JWT_ALGORITHM', 'HS256'),
+        'expiration' => env('JWT_EXPIRATION', 3600),
+        'refresh_expiration' => env('JWT_REFRESH_EXPIRATION', 604800),
+    ],
+
+    /*
      * Connection information used by the ORM to connect
      * to your application's datastores.
      *
