@@ -7,7 +7,7 @@ use Cake\Http\Response;
 
 /**
  * Test Controller
- * 
+ *
  * Provides test endpoints for authentication verification
  */
 class TestController extends ApiController
@@ -22,7 +22,7 @@ class TestController extends ApiController
         $userId = $this->request->getAttribute('user_id');
         $userEmail = $this->request->getAttribute('user_email');
         $userRole = $this->request->getAttribute('user_role');
-        
+
         return $this->apiResponse([
             'message' => 'Access granted to protected endpoint',
             'user_id' => $userId,

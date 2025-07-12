@@ -115,34 +115,37 @@ business-management-system/
 
 ### API Design
 - **Base URL**: `/api/v1`
-- **Authentication**: JWT tokens (planned)
+- **Authentication**: JWT tokens with Bearer authentication
 - **Response Format**: Standardized JSON with `success`, `data`, `message` fields
 - **CORS**: Enabled for frontend origins (localhost:3000, localhost:80)
 - **Implemented Endpoints**:
   - `/api/v1/health` - Basic health check
   - `/api/v1/health/database` - Database connectivity check
-  - `/api/v1/auth/login` - Login endpoint (validation only, auth TBD)
-  - `/api/v1/auth/logout` - Logout endpoint (placeholder)
-  - `/api/v1/auth/refresh` - Token refresh (placeholder)
-- **Planned Endpoints**:
-  - `/api/v1/staff/*` - Staff management
+  - `/api/v1/auth/login` - Complete JWT authentication
+  - `/api/v1/auth/logout` - Token invalidation
+  - `/api/v1/auth/refresh` - Access token refresh
+  - `/api/v1/test/protected` - JWT authentication test endpoint
+- **Next Implementation Priority**:
+  - `/api/v1/staff/*` - Staff management (Issue #54)
   - `/api/v1/clients/*` - Client management
   - `/api/v1/projects/*` - Project management
 
 ### Frontend Architecture
 The React application follows a structured approach:
-- `src/components/` - Reusable components
-- `src/pages/` - Page-level components
-- `src/services/` - API communication
-- `src/types/` - TypeScript definitions
+- `src/components/` - Reusable components (common/, auth/)
+- `src/pages/` - Page-level components (Login.tsx, Dashboard, etc.)
+- `src/services/` - API communication (api.ts, authService.ts)
+- `src/contexts/` - React Context providers (AuthContext.tsx)
+- `src/types/` - TypeScript definitions (auth.ts, etc.)
+- `src/constants/` - Application constants (routes.ts)
 - `src/utils/` - Utility functions
 
 ### Backend Architecture
 CakePHP follows MVC pattern:
-- `src/Controller/Api/` - API controllers
-- `src/Model/` - Database models (Entity + Table)
-- `src/Service/` - Business logic layer
-- `src/Middleware/` - Request processing middleware
+- `src/Controller/Api/` - API controllers (ApiController base, AuthController, TestController)
+- `src/Model/` - Database models (Entity + Table classes)
+- `src/Service/` - Business logic layer (JwtService for authentication)
+- `src/Middleware/` - Request processing middleware (CorsMiddleware, JwtAuthenticationMiddleware)
 
 ### Database Schema
 Key tables include:
@@ -158,8 +161,10 @@ Key tables include:
 ## Development Notes
 
 ### Current Status
-This project has completed Phase 1 (Infrastructure Setup) including API foundation implementation. The system includes:
+This project has completed **Phase 3 (Authentication System)** and is ready for Phase 4 (CRUD Operations). The system includes:
 - Docker multi-service setup with health checks
+- **Complete JWT authentication system** (JwtService, middleware, login/logout/refresh)
+- React authentication context with protected routes
 - CakePHP 5.x backend with complete API foundation
 - CORS middleware for frontend-backend communication
 - Standardized API response format and error handling
@@ -167,6 +172,8 @@ This project has completed Phase 1 (Infrastructure Setup) including API foundati
 - React + TypeScript frontend with Vite build system
 - MySQL database with phpMyAdmin interface
 - Nginx reverse proxy configuration
+
+**Next Priority**: Staff Management implementation (Issue #54)
 
 ### Environment Variables
 Copy `.env.example` to `.env` and configure:
@@ -185,14 +192,14 @@ Copy `.env.example` to `.env` and configure:
 - Input validation on all endpoints
 - CORS properly configured for frontend-backend communication
 
-### Key Features (Planned)
-1. Authentication & Authorization
-2. Staff Management
-3. Client Management
-4. Project Management
-5. Dashboard with KPIs
-6. PDF/CSV export capabilities
-7. Progress tracking and deadlines
+### Key Features Status
+1. ✅ **Authentication & Authorization** - JWT system complete
+2. 🚧 **Staff Management** - Next priority (Issue #54)
+3. 📋 **Client Management** - Planned (Issue #55)
+4. 📋 **Project Management** - Planned (Issues #57-59)
+5. 📋 **Dashboard with KPIs** - Planned (Issue #60)
+6. 📋 **PDF/CSV export capabilities** - Planned
+7. 📋 **Progress tracking and deadlines** - Planned
 
 ### Testing Strategy
 - **Frontend**: Vitest (configured in package.json)
@@ -272,8 +279,9 @@ Error responses include additional `errors` field for validation details.
 
 ### Middleware Architecture
 - **CorsMiddleware**: Handles CORS for `/api/*` routes only
+- **JwtAuthenticationMiddleware**: Validates Bearer tokens for protected API routes
 - Applied in `src/Application.php` before routing
-- CSRF protection bypassed for API routes
+- **Important**: CSRF protection currently disabled (Issue #82 - security concern)
 
 ### Logging Strategy
 - Request logging: All API requests logged with IP, method, URL
@@ -313,3 +321,24 @@ Error responses include additional `errors` field for validation details.
 - **Soft Deletes**: active field for logical deletion
 - **Performance**: Strategic indexing on foreign keys and search fields
 - **Data Integrity**: Foreign key constraints with appropriate cascade rules
+
+## Critical Issues & Priorities
+
+### 🚨 Immediate Security Concerns (Issue #82)
+**MUST fix before production deployment:**
+- JWT_SECRET using default value `your-super-secret-jwt-key-here`
+- SECURITY_SALT using hardcoded default value
+- CSRF protection completely disabled
+- Error messages potentially leaking sensitive information
+
+### 📋 Current Development Phase
+**Phase 4: Basic CRUD Operations**
+- Primary focus: Staff Management (Issue #54) 
+- Secondary: Client Management (Issue #55)
+- Estimated timeline: 2-3 weeks
+
+### 🔧 Technical Debt
+- Performance optimization needed (Issue #83)
+- Test coverage gaps (Issue #84)
+- UX improvements pending (Issue #85)
+- Infrastructure hardening required (Issue #86)
