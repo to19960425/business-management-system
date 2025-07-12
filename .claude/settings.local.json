@@ -3,7 +3,9 @@
     "allow": [
       "Bash(gh issue list:*)",
       "Bash(gh issue:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }
