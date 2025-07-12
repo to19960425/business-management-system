@@ -16,6 +16,7 @@ declare(strict_types=1);
  */
 namespace App;
 
+use App\Middleware\CorsMiddleware;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
@@ -74,6 +75,9 @@ class Application extends BaseApplication
                 'cacheTime' => Configure::read('Asset.cacheTime'),
             ]))
 
+            // Add CORS middleware for API requests
+            ->add(new CorsMiddleware())
+
             // Add routing middleware.
             // If you have a large number of routes connected, turning on routes
             // caching in production could improve performance.
@@ -86,9 +90,14 @@ class Application extends BaseApplication
             ->add(new BodyParserMiddleware())
 
             // Cross Site Request Forgery (CSRF) Protection Middleware
+            // Skip CSRF protection for API routes
             // https://book.cakephp.org/5/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
             ->add(new CsrfProtectionMiddleware([
                 'httponly' => true,
+                'skipCheckCallback' => function ($request) {
+                    // Skip CSRF for API routes
+                    return str_starts_with($request->getPath(), '/api/');
+                },
             ]));
 
         return $middlewareQueue;

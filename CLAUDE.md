@@ -39,6 +39,45 @@ docker-compose exec db mysql -u bmuser -p business_management
 docker-compose exec backend bin/cake migrations migrate
 ```
 
+### Frontend Development Commands
+```bash
+# Run frontend in development mode
+docker-compose exec frontend npm run dev
+
+# Build frontend for production
+docker-compose exec frontend npm run build
+
+# Run frontend linting
+docker-compose exec frontend npm run lint
+
+# Run frontend tests
+docker-compose exec frontend npm test
+```
+
+### Backend Development Commands
+```bash
+# Install PHP dependencies
+docker-compose exec backend composer install
+
+# Run backend tests
+docker-compose exec backend composer test
+
+# Run code style checks
+docker-compose exec backend composer cs-check
+
+# Fix code style issues
+docker-compose exec backend composer cs-fix
+
+# Run static analysis
+docker-compose exec backend composer stan
+
+# Run all checks (tests + code style)
+docker-compose exec backend composer check
+
+# Generate API documentation (when bake is configured)
+docker-compose exec backend bin/cake bake
+```
+
 ## Project Architecture
 
 ### Technology Stack
@@ -96,7 +135,12 @@ Key tables include:
 ## Development Notes
 
 ### Current Status
-This project is in Phase 1 (Infrastructure Setup) with Docker environment and basic framework setup complete. The frontend and backend directories may not yet exist as the project is still in initial setup phase.
+This project has completed Phase 1 (Infrastructure Setup) with Docker environment and both frontend/backend frameworks configured. The system includes:
+- Docker multi-service setup with health checks
+- CakePHP 5.x backend with composer scripts for testing/linting
+- React + TypeScript frontend with Vite build system
+- MySQL database with phpMyAdmin interface
+- Nginx reverse proxy configuration
 
 ### Environment Variables
 Copy `.env.example` to `.env` and configure:
@@ -120,8 +164,9 @@ Copy `.env.example` to `.env` and configure:
 7. Progress tracking and deadlines
 
 ### Testing Strategy
-- **Frontend**: Jest + React Testing Library
-- **Backend**: PHPUnit + CakePHP Test Suite
+- **Frontend**: Vitest (configured in package.json)
+- **Backend**: PHPUnit + CakePHP Test Suite with XML configuration
+- **Code Quality**: ESLint for frontend, PHPCS + PHPStan for backend
 - **E2E**: Cypress or Playwright (planned)
 
 ### Development Workflow
@@ -130,3 +175,36 @@ Copy `.env.example` to `.env` and configure:
 3. API-first approach with clear contracts
 4. Component-based frontend architecture
 5. Service layer for business logic in backend
+
+## Code Quality and Standards
+
+### PHP Standards
+- Follows CakePHP coding standards via `phpcs.xml`
+- PHPStan static analysis at level 8 
+- PSR-4 autoloading for `App\` namespace
+- Use composer scripts: `composer check` runs both tests and code style checks
+
+### TypeScript/React Standards  
+- ESLint with TypeScript, React, and React Hooks plugins
+- Vite build system with TypeScript support
+- Material-UI (MUI) for consistent component styling
+- Vitest for unit testing
+
+### Testing Commands
+```bash
+# Run single backend test file
+docker-compose exec backend vendor/bin/phpunit tests/TestCase/Service/DatabaseConnectionServiceTest.php
+
+# Run single frontend test (when tests exist)
+docker-compose exec frontend npm test -- --run SpecificTestFile
+
+# Run frontend tests in watch mode
+docker-compose exec frontend npm test
+```
+
+### Debugging and Development Tools
+- Backend logs: `docker-compose logs -f backend`
+- Frontend HMR: Vite provides hot module reloading on port 3000
+- Database GUI: phpMyAdmin at http://localhost:8081
+- Email testing: Mailhog at http://localhost:8025
+- Health checks configured for database and nginx services
