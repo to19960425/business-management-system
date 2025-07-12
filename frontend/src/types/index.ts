@@ -7,12 +7,62 @@ export interface User {
 
 export interface Staff {
   id: number;
-  name: string;
-  email: string;
-  position: string;
+  user_id: number;
+  employee_id: string;
+  first_name: string;
+  last_name: string;
+  first_name_kana?: string;
+  last_name_kana?: string;
+  phone?: string;
+  mobile?: string;
+  position?: string;
   department?: string;
-  joinDate: string;
-  isActive: boolean;
+  hire_date?: string;
+  salary?: string;
+  hourly_rate?: string;
+  notes?: string;
+  active?: boolean;
+  created?: string;
+  modified?: string;
+  user?: {
+    id: number;
+    email: string;
+    username: string;
+  };
+}
+
+export interface StaffCreateRequest {
+  user_id: number;
+  employee_id: string;
+  first_name: string;
+  last_name: string;
+  first_name_kana?: string;
+  last_name_kana?: string;
+  phone?: string;
+  mobile?: string;
+  position?: string;
+  department?: string;
+  hire_date?: string;
+  salary?: string;
+  hourly_rate?: string;
+  notes?: string;
+  active?: boolean;
+}
+
+export interface StaffUpdateRequest {
+  first_name?: string;
+  last_name?: string;
+  first_name_kana?: string;
+  last_name_kana?: string;
+  phone?: string;
+  mobile?: string;
+  position?: string;
+  department?: string;
+  hire_date?: string;
+  salary?: string;
+  hourly_rate?: string;
+  notes?: string;
+  active?: boolean;
 }
 
 export interface Client {

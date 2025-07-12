@@ -106,8 +106,14 @@ return function (RouteBuilder $routes): void {
             // Test endpoints
             $builder->connect('/test/protected', ['controller' => 'Test', 'action' => 'protected']);
             
+            // Staff endpoints
+            $builder->connect('/staff', ['controller' => 'Staff', 'action' => 'index'], ['_method' => 'GET']);
+            $builder->connect('/staff', ['controller' => 'Staff', 'action' => 'add'], ['_method' => 'POST']);
+            $builder->connect('/staff/{id}', ['controller' => 'Staff', 'action' => 'view'], ['_method' => 'GET', 'pass' => ['id']]);
+            $builder->connect('/staff/{id}', ['controller' => 'Staff', 'action' => 'edit'], ['_method' => ['PUT', 'PATCH'], 'pass' => ['id']]);
+            $builder->connect('/staff/{id}', ['controller' => 'Staff', 'action' => 'delete'], ['_method' => 'DELETE', 'pass' => ['id']]);
+            
             // Future API endpoints will be added here
-            // $builder->connect('/staff', ['controller' => 'Staff', 'action' => 'index']);
             // $builder->connect('/clients', ['controller' => 'Clients', 'action' => 'index']);
             // $builder->connect('/projects', ['controller' => 'Projects', 'action' => 'index']);
         });

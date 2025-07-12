@@ -26,6 +26,11 @@ class JwtAuthenticationMiddleware implements MiddlewareInterface
         '/api/v1/health/database',
     ];
 
+    /**
+     * Constructor
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->jwtService = new JwtService();
