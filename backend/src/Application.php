@@ -16,10 +16,8 @@ declare(strict_types=1);
  */
 namespace App;
 
-use App\Middleware\ApiCsrfProtectionMiddleware;
 use App\Middleware\CorsMiddleware;
 use App\Middleware\JwtAuthenticationMiddleware;
-use App\Service\SecurityValidationService;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;

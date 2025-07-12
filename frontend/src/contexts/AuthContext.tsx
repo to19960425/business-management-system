@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthToken } from '../types/auth';
+import { User } from '../types/auth';
 import { authService } from '../services/authService';
 
 interface AuthContextType {
@@ -70,8 +70,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       setUser(userData);
       setToken(tokens.access_token);
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }
