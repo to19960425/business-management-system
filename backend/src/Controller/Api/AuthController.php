@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use Cake\Http\Response;
-use App\Service\JwtService;
 use App\Model\Table\UsersTable;
+use App\Service\JwtService;
+use Cake\Http\Response;
+use Exception;
 
 /**
  * Auth Controller
@@ -16,7 +17,7 @@ class AuthController extends ApiController
 {
     protected UsersTable $Users;
     protected JwtService $jwtService;
-    
+
     /**
      * Initialize controller
      */
@@ -26,6 +27,7 @@ class AuthController extends ApiController
         $this->Users = $this->fetchTable('Users');
         $this->jwtService = new JwtService();
     }
+
     /**
      * Login endpoint
      *
@@ -62,12 +64,14 @@ class AuthController extends ApiController
 
             if (!$user) {
                 $this->logAuthAttempt($data['email'], false, 'User not found');
+
                 return $this->apiUnauthorized('Invalid credentials');
             }
 
             // Verify password
             if (!password_verify($data['password'], $user->password)) {
                 $this->logAuthAttempt($data['email'], false, 'Invalid password');
+
                 return $this->apiUnauthorized('Invalid credentials');
             }
 
@@ -85,9 +89,9 @@ class AuthController extends ApiController
                 ],
                 'tokens' => $tokens,
             ], 'Login successful');
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logApiError('Login error: ' . $e->getMessage(), 500);
+
             return $this->apiError('Internal server error', 500);
         }
     }
@@ -140,7 +144,7 @@ class AuthController extends ApiController
             $user = $this->Users->get($payload['sub']);
 
             if (!$user || !$user->active) {
-                return $this->apiUnauthorized('User not found or inactive');
+                return $this->apiUnauthorized('Invalid refresh token');
             }
 
             // Generate new tokens
@@ -155,9 +159,9 @@ class AuthController extends ApiController
                 ],
                 'tokens' => $tokens,
             ], 'Token refreshed successfully');
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logApiError('Token refresh error: ' . $e->getMessage(), 500);
+
             return $this->apiError('Internal server error', 500);
         }
     }

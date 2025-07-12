@@ -56,11 +56,12 @@ class User extends Entity
      * @param string $password
      * @return string|false
      */
-    protected function _setPassword(string $password)
+    protected function _setPassword(string $password): string|false
     {
         if (strlen($password) > 0) {
             return password_hash($password, PASSWORD_DEFAULT);
         }
+
         return false;
     }
 }
