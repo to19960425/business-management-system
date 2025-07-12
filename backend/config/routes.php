@@ -86,18 +86,27 @@ return function (RouteBuilder $routes): void {
     });
 
     /*
-     * If you need a different set of middleware or none at all,
-     * open new scope and define routes there.
-     *
-     * ```
-     * $routes->scope('/api', function (RouteBuilder $builder): void {
-     *     // No $builder->applyMiddleware() here.
-     *
-     *     // Parse specified extensions from URLs
-     *     // $builder->setExtensions(['json', 'xml']);
-     *
-     *     // Connect API actions here.
-     * });
-     * ```
+     * API Routes
      */
+    $routes->prefix('Api', function (RouteBuilder $builder): void {
+        // Set JSON extension for API routes
+        $builder->setExtensions(['json']);
+        
+        // API v1 routes
+        $builder->scope('/v1', function (RouteBuilder $builder): void {
+            // Health check endpoints
+            $builder->connect('/health', ['controller' => 'Health', 'action' => 'check']);
+            $builder->connect('/health/database', ['controller' => 'Health', 'action' => 'database']);
+            
+            // Authentication endpoints
+            $builder->connect('/auth/login', ['controller' => 'Auth', 'action' => 'login']);
+            $builder->connect('/auth/logout', ['controller' => 'Auth', 'action' => 'logout']);
+            $builder->connect('/auth/refresh', ['controller' => 'Auth', 'action' => 'refresh']);
+            
+            // Future API endpoints will be added here
+            // $builder->connect('/staff', ['controller' => 'Staff', 'action' => 'index']);
+            // $builder->connect('/clients', ['controller' => 'Clients', 'action' => 'index']);
+            // $builder->connect('/projects', ['controller' => 'Projects', 'action' => 'index']);
+        });
+    });
 };
