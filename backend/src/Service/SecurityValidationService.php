@@ -41,7 +41,11 @@ class SecurityValidationService
      */
     private function validateJwtSecret(): void
     {
+        // Try to get from Configure first, then fallback to env()
         $jwtSecret = Configure::read('JWT.secret');
+        if (empty($jwtSecret)) {
+            $jwtSecret = env('JWT_SECRET');
+        }
 
         if (empty($jwtSecret)) {
             throw new RuntimeException('JWT_SECRET must be configured');
@@ -63,7 +67,11 @@ class SecurityValidationService
      */
     private function validateSecuritySalt(): void
     {
+        // Try to get from Configure first, then fallback to env()
         $securitySalt = Configure::read('Security.salt');
+        if (empty($securitySalt)) {
+            $securitySalt = env('SECURITY_SALT');
+        }
 
         if (empty($securitySalt)) {
             throw new RuntimeException('SECURITY_SALT must be configured');
