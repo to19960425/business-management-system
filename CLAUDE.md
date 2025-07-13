@@ -125,9 +125,9 @@ business-management-system/
   - `/api/v1/auth/logout` - Token invalidation
   - `/api/v1/auth/refresh` - Access token refresh
   - `/api/v1/test/protected` - JWT authentication test endpoint
+  - `/api/v1/staff/*` - Complete staff management CRUD operations
 - **Next Implementation Priority**:
-  - `/api/v1/staff/*` - Staff management (Issue #54)
-  - `/api/v1/clients/*` - Client management
+  - `/api/v1/clients/*` - Client management (Issue #55)
   - `/api/v1/projects/*` - Project management
 
 ### Frontend Architecture
@@ -142,10 +142,10 @@ The React application follows a structured approach:
 
 ### Backend Architecture
 CakePHP follows MVC pattern:
-- `src/Controller/Api/` - API controllers (ApiController base, AuthController, TestController)
+- `src/Controller/Api/` - API controllers (ApiController base, AuthController, TestController, StaffController)
 - `src/Model/` - Database models (Entity + Table classes)
-- `src/Service/` - Business logic layer (JwtService for authentication)
-- `src/Middleware/` - Request processing middleware (CorsMiddleware, JwtAuthenticationMiddleware)
+- `src/Service/` - Business logic layer (JwtService, SecurityValidationService)
+- `src/Middleware/` - Request processing middleware (CorsMiddleware, JwtAuthenticationMiddleware, ApiCsrfProtectionMiddleware)
 
 ### Database Schema
 Key tables include:
@@ -161,9 +161,11 @@ Key tables include:
 ## Development Notes
 
 ### Current Status
-This project has completed **Phase 3 (Authentication System)** and is ready for Phase 4 (CRUD Operations). The system includes:
+This project has completed **Phase 4 (Basic CRUD Operations)** with staff management implemented. The system includes:
 - Docker multi-service setup with health checks
 - **Complete JWT authentication system** (JwtService, middleware, login/logout/refresh)
+- **Staff management system** with full CRUD operations
+- **Enhanced security features** (SecurityValidationService, ApiCsrfProtectionMiddleware)
 - React authentication context with protected routes
 - CakePHP 5.x backend with complete API foundation
 - CORS middleware for frontend-backend communication
@@ -173,7 +175,7 @@ This project has completed **Phase 3 (Authentication System)** and is ready for 
 - MySQL database with phpMyAdmin interface
 - Nginx reverse proxy configuration
 
-**Next Priority**: Staff Management implementation (Issue #54)
+**Next Priority**: Client Management implementation (Issue #55)
 
 ### Environment Variables
 Copy `.env.example` to `.env` and configure:
@@ -193,9 +195,9 @@ Copy `.env.example` to `.env` and configure:
 - CORS properly configured for frontend-backend communication
 
 ### Key Features Status
-1. ✅ **Authentication & Authorization** - JWT system complete
-2. 🚧 **Staff Management** - Next priority (Issue #54)
-3. 📋 **Client Management** - Planned (Issue #55)
+1. ✅ **Authentication & Authorization** - JWT system complete with enhanced security
+2. ✅ **Staff Management** - Complete CRUD operations implemented
+3. 🚧 **Client Management** - Next priority (Issue #55)
 4. 📋 **Project Management** - Planned (Issues #57-59)
 5. 📋 **Dashboard with KPIs** - Planned (Issue #60)
 6. 📋 **PDF/CSV export capabilities** - Planned
@@ -213,6 +215,28 @@ Copy `.env.example` to `.env` and configure:
 3. API-first approach with clear contracts
 4. Component-based frontend architecture
 5. Service layer for business logic in backend
+
+### Architecture Patterns & Conventions
+
+#### API Development Pattern
+- **Base Controller**: Extend `ApiController` for all API endpoints
+- **Response Format**: Always use `apiResponse()`, `apiError()`, `apiValidationError()` methods
+- **Authentication**: Use `JwtAuthenticationMiddleware` for protected routes
+- **Validation**: Implement validation in controller actions using CakePHP validation
+- **Error Handling**: Consistent error responses with proper HTTP status codes
+
+#### Frontend Development Pattern
+- **Components**: Separate into `common/`, feature-specific folders (e.g., `auth/`, `staff/`)
+- **State Management**: Use React Context for auth, consider Redux Toolkit for complex state
+- **API Communication**: Use centralized API service with proper error handling
+- **Routing**: Protected routes using authentication context
+- **Form Handling**: React Hook Form with Material-UI components
+
+#### Security Implementation
+- **Environment Variables**: Use `SecurityValidationService` pattern for validation
+- **CSRF Protection**: Implement smart skipping for API routes using `ApiCsrfProtectionMiddleware` pattern
+- **JWT Tokens**: Follow existing `JwtService` pattern for token management
+- **Password Handling**: Always use bcrypt with proper salt validation
 
 ## Code Quality and Standards
 
@@ -233,11 +257,18 @@ Copy `.env.example` to `.env` and configure:
 # Run single backend test file
 docker compose exec backend vendor/bin/phpunit tests/TestCase/Service/DatabaseConnectionServiceTest.php
 
-# Run single unit test file (no database required)
+# Run unit tests only (faster, no database required - covers Middleware & API Controllers)
+docker compose exec backend vendor/bin/phpunit -c phpunit-unit.xml
+
+# Run specific unit test files
 docker compose exec backend vendor/bin/phpunit -c phpunit-unit.xml tests/TestCase/Middleware/CorsMiddlewareTest.php
+docker compose exec backend vendor/bin/phpunit -c phpunit-unit.xml tests/TestCase/Service/SecurityValidationServiceTest.php
 
 # Run API-specific unit tests
 docker compose exec backend vendor/bin/phpunit -c phpunit-unit.xml tests/TestCase/Controller/Api/
+
+# Run integration tests (requires database)
+docker compose exec backend vendor/bin/phpunit tests/TestCase/Integration/
 
 # Run single frontend test (when tests exist)
 docker compose exec frontend npm test -- --run SpecificTestFile
@@ -280,8 +311,9 @@ Error responses include additional `errors` field for validation details.
 ### Middleware Architecture
 - **CorsMiddleware**: Handles CORS for `/api/*` routes only
 - **JwtAuthenticationMiddleware**: Validates Bearer tokens for protected API routes
+- **ApiCsrfProtectionMiddleware**: CSRF protection with smart skipping for OPTIONS, JWT auth, and auth endpoints
+- **SecurityValidationService**: Validates JWT secrets and security salts with environment variable fallback
 - Applied in `src/Application.php` before routing
-- **Important**: CSRF protection currently disabled (Issue #82 - security concern)
 
 ### Logging Strategy
 - Request logging: All API requests logged with IP, method, URL
@@ -322,19 +354,20 @@ Error responses include additional `errors` field for validation details.
 - **Performance**: Strategic indexing on foreign keys and search fields
 - **Data Integrity**: Foreign key constraints with appropriate cascade rules
 
-## Critical Issues & Priorities
+## Security & Production Readiness
 
-### 🚨 Immediate Security Concerns (Issue #82)
-**MUST fix before production deployment:**
-- JWT_SECRET using default value `your-super-secret-jwt-key-here`
-- SECURITY_SALT using hardcoded default value
-- CSRF protection completely disabled
-- Error messages potentially leaking sensitive information
+### ✅ Security Features Implemented
+- **JWT Authentication**: Complete system with proper token validation
+- **CSRF Protection**: ApiCsrfProtectionMiddleware with intelligent request skipping
+- **Environment Variable Validation**: SecurityValidationService ensures proper configuration
+- **Password Security**: Bcrypt hashing with proper salt validation
+- **Input Validation**: Comprehensive validation on all API endpoints
+- **CORS Configuration**: Properly configured for frontend-backend communication
 
 ### 📋 Current Development Phase
-**Phase 4: Basic CRUD Operations**
-- Primary focus: Staff Management (Issue #54) 
-- Secondary: Client Management (Issue #55)
+**Phase 5: Client Management System**
+- Primary focus: Client Management (Issue #55)
+- Secondary: Project Management planning
 - Estimated timeline: 2-3 weeks
 
 ### 🔧 Technical Debt
@@ -342,3 +375,21 @@ Error responses include additional `errors` field for validation details.
 - Test coverage gaps (Issue #84)
 - UX improvements pending (Issue #85)
 - Infrastructure hardening required (Issue #86)
+
+## Important Notes for Development
+
+### Recent Changes
+- **Security Enhancements**: Complete security overhaul implemented (Issue #88)
+  - SecurityValidationService with environment variable fallback
+  - ApiCsrfProtectionMiddleware with intelligent request skipping
+  - Proper JWT secret and security salt validation
+- **Staff Management**: Full CRUD implementation completed
+- **Testing Infrastructure**: Unit tests and integration tests properly configured
+
+### Key Implementation Files
+- `backend/src/Controller/Api/ApiController.php` - Base API controller with standardized responses
+- `backend/src/Service/JwtService.php` - JWT token management
+- `backend/src/Service/SecurityValidationService.php` - Security configuration validation
+- `backend/src/Middleware/ApiCsrfProtectionMiddleware.php` - Smart CSRF protection
+- `frontend/src/services/api.ts` - Centralized API communication
+- `frontend/src/contexts/AuthContext.tsx` - Authentication state management
